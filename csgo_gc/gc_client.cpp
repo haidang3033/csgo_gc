@@ -877,7 +877,7 @@ void ClientGC::NameBaseItem(GCMessageRead &messageRead)
 void ClientGC::Craft(GCMessageRead &messageRead)
 {
     // Trade-up contract message format:
-    // int16_t recipe (-2 for trade-up)
+    // int16_t recipe
     // int16_t itemCount (should be 10)
     // uint64_t itemIds[itemCount]
     
@@ -892,8 +892,11 @@ void ClientGC::Craft(GCMessageRead &messageRead)
     
     Platform::Print("TRADE-UP CONTRACT: recipe=%d, itemCount=%d\n", recipe, itemCount);
 
-    // Trade-up recipes are -2 and 12 (remove restriction on 12)
-    if (recipe != -2 && recipe != 12)
+    // Update: Allow recipes 0-4, plus legacy -2 and 12
+    bool isStandardRecipe = (recipe >= 0 && recipe <= 5);
+    bool isStatTrakRecipe = (recipe >= 10 && recipe <= 15);
+    bool isLegacyRecipe = (recipe == -2);
+    if (!isStandardRecipe && !isLegacyRecipe && !isStatTrakRecipe)
     {
         Platform::Print("Unsupported craft recipe %d, ignoring\n", recipe);
         return;
@@ -910,7 +913,6 @@ void ClientGC::Craft(GCMessageRead &messageRead)
         {
             Platform::Print("Parsing CMsgGCCraft item %d failed, ignoring\n", i);
             return;
-
         }
         inputItemIds.push_back(itemId);
     }

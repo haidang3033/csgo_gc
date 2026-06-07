@@ -51,6 +51,13 @@ add_subdirectory(csgo_gc)
 add_subdirectory(launcher)
 add_subdirectory(steamworks)
 
+# Add the directory containing your shim header to the include search path
+target_include_directories(csgo_gc PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Use a relative include and remove the absolute path requirement
+target_compile_options(csgo_gc PRIVATE /FI"fix_shit.h")
+
+
 include(FetchContent)
 set(FETCHCONTENT_QUIET FALSE)
 

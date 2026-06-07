@@ -63,7 +63,27 @@ bool CaseOpening::SelectItemFromCrate(const CSOEconItem &crate, CSOEconItem &ite
     }
 
     bool statTrak = ShouldMakeStatTrak(*lootListItem, *lootList, containsUnusuals);
-    return m_itemSchema.CreateItemFromLootListItem(m_random, *lootListItem, statTrak, ItemOriginCrate, UnacknowledgedFoundInCrate, item);
+        bool success = m_itemSchema.CreateItemFromLootListItem(m_random, *lootListItem, statTrak, ItemOriginCrate, UnacknowledgedFoundInCrate, item);
+
+        if (success)
+        {
+            // Only force to Unique if it's NOT StatTrak and NOT a Knife/Glove
+            if (statTrak)
+            {
+                item.set_quality(ItemSchema::QualityStrange); // 9
+            }
+            else if (lootListItem->quality == ItemSchema::QualityUnusual)
+            {
+                item.set_quality(ItemSchema::QualityUnusual); // 3
+            }
+            else
+            {
+                // Fixes the "Normal" (0) bug for standard case unboxings
+                item.set_quality(ItemSchema::QualityUnique); // 4
+            }
+        }
+
+        return success;
 }
 
 // get a range of loot list items with a specific rarity from a vector sorted by rarity
